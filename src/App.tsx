@@ -8,7 +8,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, Component, ReactNode } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Site, WorkLog, PersonnelLog, EquipmentLog, MaterialLog, Photo, AdminFinance, WeeklySchedule, Appointment, OrderItem, ProjectMemo } from './types';
 import { INITIAL_SITES } from './constants';
 import { loadFromStorage, saveToStorage } from './lib/storage';
@@ -16,42 +17,6 @@ import SiteSelector from './components/SiteSelector';
 import MainLayout from './components/MainLayout';
 import Dashboard from './components/Dashboard';
 import ExitModal from './components/ExitModal';
-
-// Error Boundary for production debugging
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: any) {
-    console.error("Critical Application Error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="p-10 bg-white min-h-screen flex items-center justify-center text-center">
-          <div className="max-w-md">
-            <h1 className="text-2xl font-black text-red-500 mb-4 uppercase">APPLICATION CRASH</h1>
-            <p className="text-gray-600 mb-6 font-bold">{this.state.error?.message}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="bg-brand-blue text-white px-6 py-3 rounded-xl font-black"
-            >
-              RELOAD APPLICATION
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 export default function App() {
   const [sites, setSites] = useState<Site[]>(() => loadFromStorage('sites', INITIAL_SITES));
@@ -92,22 +57,19 @@ export default function App() {
 
   if (!selectedSiteId || !selectedSite) {
     return (
-      <ErrorBoundary>
-        <SiteSelector 
-          sites={sites} 
-          onSelect={(id) => setSelectedSiteId(id)} 
-          onAddSite={(newSite) => setSites(prev => [...prev, newSite])}
-          onDeleteSite={(id) => setSites(prev => prev.filter(s => s.id !== id))}
-          isAdminMode={isAdminMode}
-          setIsAdminMode={setIsAdminMode}
-        />
-      </ErrorBoundary>
+      <SiteSelector 
+        sites={sites} 
+        onSelect={(id) => setSelectedSiteId(id)} 
+        onAddSite={(newSite) => setSites(prev => [...prev, newSite])}
+        onDeleteSite={(id) => setSites(prev => prev.filter(s => s.id !== id))}
+        isAdminMode={isAdminMode}
+        setIsAdminMode={setIsAdminMode}
+      />
     );
   }
 
   return (
-    <ErrorBoundary>
-      <MainLayout 
+    <MainLayout 
       site={selectedSite} 
       onLogout={() => setSelectedSiteId(null)}
       isAdminMode={isAdminMode}
@@ -223,7 +185,6 @@ export default function App() {
         </div>
       )}
     </MainLayout>
-    </ErrorBoundary>
   );
 }
 

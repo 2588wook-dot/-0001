@@ -100,7 +100,7 @@ export default function SiteSelector({ sites, onSelect, onAddSite, onDeleteSite,
               <div 
                 key={site.id}
                 onClick={() => onSelect(site.id)}
-                className="group relative bg-white border-2 border-[#141414] p-4 md:p-6 hover:translate-x-2 hover:-translate-y-2 hover:shadow-[8px_8px_0px_#141414] transition-all cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="group relative bg-white border-2 border-[#141414] p-4 md:p-6 md:hover:translate-x-2 md:hover:-translate-y-2 md:hover:shadow-[8px_8px_0px_#141414] active:scale-[0.98] transition-all cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[4px_4px_0px_#141414] md:shadow-none"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-4 mb-2">

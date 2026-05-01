@@ -12,11 +12,20 @@
 
 @layer base {
   body {
-    @apply bg-bg-gray text-[#1f2937];
+    @apply bg-bg-gray text-[#1f2937] select-none md:select-auto;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
 @layer components {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .active-pop {
+    @apply active:scale-95 transition-transform;
+  }
+
   .card {
     @apply bg-white rounded-lg border border-border-gray p-4 shadow-sm;
   }

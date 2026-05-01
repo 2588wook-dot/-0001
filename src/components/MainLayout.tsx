@@ -223,7 +223,7 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden pb-20 md:pb-0">
         <header className="bg-white border-b border-border-gray px-4 md:px-6 py-4 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-sm">
           <div className="flex items-center gap-3 overflow-hidden">
             <button 
@@ -264,7 +264,7 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
         </div>
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 h-18 bg-white border-t border-gray-100 flex items-center justify-around px-1 z-40 md:hidden pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-gray-100 flex items-center justify-around px-1 z-40 md:hidden pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         {mobileNavItems.map((item, idx) => {
           const isActive = !item.isAction && (activeTab === item.label || (item.label === '일보작성' && activeTab === '공사일보 작성') || (item.label === '도면관리' && activeTab === '현장 도면 [PDF]') || (item.special && isAdminMode));
           

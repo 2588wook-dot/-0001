@@ -3,16 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>ArchiLog - 현장관리 시스템</title>
+    <script>
+      // Early error tracking
+      window.onerror = function(msg, url, line, col, error) {
+        console.error("Early Load Error:", msg, "at", url, line, col);
+        var root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = '<div style="padding: 20px; color: red;"><h1>System Error</h1><p>' + msg + '</p></div>';
+        }
+        return false;
+      };
+      console.log("ArchiLog: index.html loaded, waiting for main.tsx...");
+    </script>
   </head>
   <body>
-    <div id="root">
-      <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; background-color: #f3f4f6;">
-        <h1 style="font-weight: 900; letter-spacing: -0.05em; margin-bottom: 0.5rem; font-style: italic; font-size: 2rem; color: #111827;">ArchiLog</h1>
-        <p style="font-weight: 700; font-size: 0.875rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em;">Loading Application...</p>
-      </div>
-    </div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root"></div>
+    <script type="module" src="src/main.tsx"></script>
   </body>
 </html>
 

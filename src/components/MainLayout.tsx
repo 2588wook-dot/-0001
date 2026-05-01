@@ -40,8 +40,15 @@ interface Props {
 
 export default function MainLayout({ site, children, onLogout, isAdminMode, setIsAdminMode, activeTab, setActiveTab, onExit, onSave }: Props) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleAdminToggle = () => {
     if (isAdminMode) {
@@ -104,18 +111,20 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
     }
   };
 
+  const isMobile = windowWidth < 768;
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-bg-gray font-sans overflow-hidden">
       {/* Desktop Sidebar / Mobile Overlay Sidebar */}
       <AnimatePresence>
-        {(isSidebarOpen || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
+        {(isSidebarOpen || !isMobile) && (
           <motion.aside 
             initial={{ x: -240 }}
-            animate={{ x: 0, width: isSidebarOpen ? 240 : (typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : 70) }}
+            animate={{ x: 0, width: isSidebarOpen ? 240 : (isMobile ? 0 : 70) }}
             exit={{ x: -240 }}
             className={`fixed md:relative bg-sidebar-dark text-white flex flex-col h-full shrink-0 overflow-hidden z-[60] transition-all shadow-xl`}
             style={{ 
-              display: !isSidebarOpen && typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : 'flex' 
+              display: !isSidebarOpen && isMobile ? 'none' : 'flex' 
             }}
           >
             <div className="p-5 flex items-center justify-between">

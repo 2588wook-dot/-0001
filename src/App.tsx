@@ -114,9 +114,21 @@ export default function App() {
           if (idx > -1) return prev.map((p, i) => i === idx ? log : p);
           return [...prev, log];
         })}
-        onUpdatePersonnel={(log) => setPersonnelLogs(prev => [...prev, log])}
-        onUpdateEquipment={(log) => setEquipmentLogs(prev => [...prev, log])}
-        onUpdateMaterial={(log) => setMaterialLogs(prev => [...prev, log])}
+        onUpdatePersonnel={(log) => setPersonnelLogs(prev => {
+          const idx = prev.findIndex(p => p.id === log.id);
+          if (idx > -1) return prev.map((p, i) => i === idx ? log : p);
+          return [...prev, log];
+        })}
+        onUpdateEquipment={(log) => setEquipmentLogs(prev => {
+          const idx = prev.findIndex(p => p.id === log.id);
+          if (idx > -1) return prev.map((p, i) => i === idx ? log : p);
+          return [...prev, log];
+        })}
+        onUpdateMaterial={(log) => setMaterialLogs(prev => {
+          const idx = prev.findIndex(p => p.id === log.id);
+          if (idx > -1) return prev.map((p, i) => i === idx ? log : p);
+          return [...prev, log];
+        })}
         onDeletePersonnel={(id) => setPersonnelLogs(prev => prev.filter(l => l.id !== id))}
         onDeleteEquipment={(id) => setEquipmentLogs(prev => prev.filter(l => l.id !== id))}
         onDeleteMaterial={(id) => setMaterialLogs(prev => prev.filter(l => l.id !== id))}
@@ -126,13 +138,29 @@ export default function App() {
           return [...prev, fin];
         })}
         onUpdatePhotos={(photo) => setPhotos(prev => [...prev, photo])}
-        onUpdateWeeklySchedule={(log) => setWeeklySchedules(prev => [...prev, {...log, siteId: selectedSiteId!}])}
+        onUpdateWeeklySchedule={(log) => setWeeklySchedules(prev => {
+          const idx = prev.findIndex(p => p.id === log.id);
+          if (idx > -1) return prev.map((p, i) => i === idx ? log : p);
+          return [...prev, {...log, siteId: selectedSiteId!}];
+        })}
         onDeleteWeeklySchedule={(id) => setWeeklySchedules(prev => prev.filter(l => l.id !== id))}
-        onUpdateMemo={(memo) => setMemos(prev => [...prev, {...memo, siteId: selectedSiteId!}])}
+        onUpdateMemo={(memo) => setMemos(prev => {
+          const idx = prev.findIndex(m => m.id === memo.id);
+          if (idx > -1) return prev.map((m, i) => i === idx ? memo : m);
+          return [...prev, {...memo, siteId: selectedSiteId!}];
+        })}
         onDeleteMemo={(id) => setMemos(prev => prev.filter(m => m.id !== id))}
-        onUpdateAppointment={(app) => setAppointments(prev => [...prev, {...app, siteId: selectedSiteId!}])}
+        onUpdateAppointment={(app) => setAppointments(prev => {
+          const idx = prev.findIndex(a => a.id === app.id);
+          if (idx > -1) return prev.map((a, i) => i === idx ? app : a);
+          return [...prev, {...app, siteId: selectedSiteId!}];
+        })}
         onDeleteAppointment={(id) => setAppointments(prev => prev.filter(l => l.id !== id))}
-        onUpdateOrder={(order) => setOrders(prev => [...prev, {...order, siteId: selectedSiteId!}])}
+        onUpdateOrder={(order) => setOrders(prev => {
+          const idx = prev.findIndex(o => o.id === order.id);
+          if (idx > -1) return prev.map((o, i) => i === idx ? order : o);
+          return [...prev, {...order, siteId: selectedSiteId!}];
+        })}
         onDeleteOrder={(id) => setOrders(prev => prev.filter(l => l.id !== id))}
         isAdminMode={isAdminMode}
       />

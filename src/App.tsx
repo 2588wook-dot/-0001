@@ -3,12 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Site, WorkLog, PersonnelLog, EquipmentLog, MaterialLog, Photo, AdminFinance, WeeklySchedule, Appointment, OrderItem, ProjectMemo } from './types';
 import { INITIAL_SITES } from './constants';

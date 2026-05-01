@@ -3,7 +3,8 @@
  */
 
 import { Site, WorkLog, PersonnelLog, EquipmentLog, MaterialLog } from '../types';
-import { Printer, Download, FileText } from 'lucide-react';
+import { Printer, Download, FileText, Save, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
   site: Site;
@@ -13,9 +14,11 @@ interface Props {
     equipment: EquipmentLog[];
     material: MaterialLog[];
   };
+  onSaveAndClose?: () => void;
 }
 
-export default function ReportView({ site, logs }: Props) {
+export default function ReportView({ site, logs, onSaveAndClose }: Props) {
+  const [showSaved, setShowSaved] = useState(false);
   const today = new Date().toISOString().split('T')[0];
   const todayWork = logs.work.find(l => l.date === today) || logs.work[logs.work.length - 1];
   const todayPersonnel = logs.personnel.filter(l => l.date === (todayWork?.date || today));
@@ -26,18 +29,33 @@ export default function ReportView({ site, logs }: Props) {
     window.print();
   };
 
+  const handleSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center no-print">
-        <h2 className="text-xl font-bold flex items-center gap-2">
+      <div className="flex justify-between items-center no-print gap-4">
+        <h2 className="text-xl font-bold flex items-center gap-2 shrink-0">
           <FileText size={20} className="text-brand-blue" />
           공사일보 출력 (A4)
         </h2>
-        <div className="flex gap-2">
-          <button className="btn-primary flex items-center gap-2" onClick={handlePrint}>
+        <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <button 
+            onClick={handleSave}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-black transition-all whitespace-nowrap ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'}`}
+          >
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '보고서 설정 저장됨' : '보고서 저장'}
+          </button>
+          <button className="btn-primary flex items-center gap-2 whitespace-nowrap" onClick={handlePrint}>
             <Printer size={16} /> 인쇄하기
           </button>
-          <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2">
+          <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 whitespace-nowrap">
             <Download size={16} /> PDF 저장
           </button>
         </div>
@@ -77,10 +95,12 @@ export default function ReportView({ site, logs }: Props) {
               <div className="space-y-1">
                 <p className="text-xs"><span className="font-bold w-16 inline-block">공 사 명 :</span> {site.name}</p>
                 <p className="text-xs"><span className="font-bold w-16 inline-block">일 자 :</span> {todayWork?.date || today} ({new Date(todayWork?.date || today).toLocaleDateString('ko-KR', { weekday: 'long' })})</p>
+                <p className="text-xs"><span className="font-bold w-16 inline-block">공정진행 :</span> {todayWork?.progressPercent || 0}% (잔여: {todayWork?.remainingDays || 0}일)</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xs"><span className="font-bold w-16 inline-block">날 씨 :</span> {todayWork?.weather || '맑음'}</p>
                 <p className="text-xs"><span className="font-bold w-16 inline-block">작성자 :</span> {site.manager}</p>
+                <p className="text-xs"><span className="font-bold w-16 inline-block">현장인원 :</span> 총 {todayWork?.manpowerTotal || todayPersonnel.reduce((acc, curr) => acc + curr.count, 0)}명 (장비: {todayWork?.equipmentTotal || todayEquipment.reduce((acc, curr) => acc + curr.count, 0)}대)</p>
               </div>
             </div>
 

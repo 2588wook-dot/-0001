@@ -5,20 +5,30 @@
 
 import { useState } from 'react';
 import { PersonnelLog } from '../types';
-import { Plus, Trash2, Users } from 'lucide-react';
+import { Plus, Trash2, Users, Save, CheckCircle2 } from 'lucide-react';
 
 interface Props {
   logs: PersonnelLog[];
   partners: string[];
   onSave: (log: PersonnelLog) => void;
   onDelete: (id: string) => void;
+  onSaveAndClose?: () => void;
 }
 
-export default function PersonnelForm({ logs, partners, onSave, onDelete }: Props) {
+export default function PersonnelForm({ logs, partners, onSave, onDelete, onSaveAndClose }: Props) {
   const today = new Date().toISOString().split('T')[0];
   const [partner, setPartner] = useState(partners[0] || '');
   const [trade, setTrade] = useState('');
   const [count, setCount] = useState(0);
+  const [showSaved, setShowSaved] = useState(false);
+
+  const handlePageSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
 
   const handleAdd = () => {
     if (!partner || !trade || count <= 0) return;
@@ -59,17 +69,37 @@ export default function PersonnelForm({ logs, partners, onSave, onDelete }: Prop
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 animate-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-0">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-2 gap-4">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">인원 투입 관리</h2>
-          <p className="text-xs text-gray-500 mt-1">일자별 현장 투입 인원을 기록하고 통계를 확인합니다.</p>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
+        <div className="flex justify-between w-full md:w-auto items-center">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">인원 투입 관리</h2>
+            <p className="text-xs text-gray-500 mt-1">일자별 현장 투입 인원을 기록하고 통계를 확인합니다.</p>
+          </div>
+          <button 
+            onClick={handlePageSave}
+            className={`md:hidden flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'}`}
+          >
+            {showSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+            {showSaved ? '저장됨' : '저장'}
+          </button>
         </div>
-        <div className="flex items-baseline gap-2 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm md:shadow-none md:border-0 md:bg-transparent">
-          <span className="text-xs text-gray-400 font-medium">금일 {today}:</span>
-          <span className="text-2xl font-extrabold text-brand-blue">
-            {todayLogs.reduce((acc, curr) => acc + curr.count, 0)}
-          </span>
-          <span className="text-[10px] text-gray-400 font-bold uppercase">PERSONS</span>
+        
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex items-baseline gap-2 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm md:shadow-none md:border-0 md:bg-transparent">
+            <span className="text-xs text-gray-400 font-medium">금일 {today}:</span>
+            <span className="text-2xl font-extrabold text-brand-blue">
+              {todayLogs.reduce((acc, curr) => acc + curr.count, 0)}
+            </span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase">PERSONS</span>
+          </div>
+
+          <button 
+            onClick={handlePageSave}
+            className={`hidden md:flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
+          >
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '페이지 저장 완료' : '현 페이지 데이터 저장'}
+          </button>
         </div>
       </header>
 

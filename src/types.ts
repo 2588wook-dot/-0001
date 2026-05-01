@@ -25,6 +25,10 @@ export interface WorkLog {
   weather: string;
   todayWork: string;
   tomorrowWork: string;
+  manpowerTotal?: number;
+  equipmentTotal?: number;
+  progressPercent?: number;
+  remainingDays?: number;
 }
 
 export interface PersonnelLog {
@@ -61,7 +65,18 @@ export interface Photo {
   siteId: string;
   date: string;
   url: string;
+  title?: string;
   description: string;
+}
+
+export interface ProductivityLog {
+  id: string;
+  siteId: string;
+  date: string;
+  plannedWork: number;
+  actualWork: number;
+  manpower: number;
+  unit: string; // e.g., m2, m, EA
 }
 
 export interface AdminFinance {

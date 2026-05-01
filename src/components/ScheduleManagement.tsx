@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { Appointment, OrderItem } from '../types';
-import { Calendar, Package, Plus, Trash2, CheckCircle2, ShoppingCart, Clock } from 'lucide-react';
+import { Calendar, Package, Plus, Trash2, CheckCircle2, ShoppingCart, Clock, Save } from 'lucide-react';
 
 interface Props {
   appointments: Appointment[];
@@ -14,6 +14,7 @@ interface Props {
   onUpdateOrders: (order: OrderItem) => void;
   onDeleteAppointment: (id: string) => void;
   onDeleteOrder: (id: string) => void;
+  onSaveAndClose?: () => void;
 }
 
 export default function ScheduleManagement({ 
@@ -22,9 +23,19 @@ export default function ScheduleManagement({
   onUpdateAppointments, 
   onUpdateOrders,
   onDeleteAppointment,
-  onDeleteOrder
+  onDeleteOrder,
+  onSaveAndClose
 }: Props) {
   const [activeSubTab, setActiveSubTab] = useState<'약속' | '발주'>('약속');
+  const [showSaved, setShowSaved] = useState(false);
+
+  const handlePageSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
   
   // Appointment Form State
   const [appDate, setAppDate] = useState('');
@@ -70,23 +81,41 @@ export default function ScheduleManagement({
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 animate-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-10">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">스케줄 및 발주 관리</h2>
-          <p className="text-xs text-gray-500 mt-1">현장 방문 미팅 예약과 자재 발주 현황을 통합 관리합니다.</p>
-        </div>
-        <div className="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+        <div className="flex justify-between w-full md:w-auto items-center">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">스케줄 및 발주 관리</h2>
+            <p className="text-xs text-gray-500 mt-1">현장 방문 미팅 예약과 자재 발주 현황을 통합 관리합니다.</p>
+          </div>
           <button 
-            onClick={() => setActiveSubTab('약속')}
-            className={`flex-1 md:flex-none px-4 py-3 md:py-1.5 text-xs font-bold rounded-md transition-all ${activeSubTab === '약속' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            onClick={handlePageSave}
+            className={`md:hidden flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'}`}
           >
-            미팅/약속
+            {showSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+            {showSaved ? '저장됨' : '저장'}
           </button>
+        </div>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto">
+            <button 
+              onClick={() => setActiveSubTab('약속')}
+              className={`flex-1 md:flex-none px-4 py-3 md:py-1.5 text-xs font-bold rounded-md transition-all ${activeSubTab === '약속' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              미팅/약속
+            </button>
+            <button 
+              onClick={() => setActiveSubTab('발주')}
+              className={`flex-1 md:flex-none px-4 py-3 md:py-1.5 text-xs font-bold rounded-md transition-all ${activeSubTab === '발주' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            >
+              자재 발주 리스트
+            </button>
+          </div>
           <button 
-            onClick={() => setActiveSubTab('발주')}
-            className={`flex-1 md:flex-none px-4 py-3 md:py-1.5 text-xs font-bold rounded-md transition-all ${activeSubTab === '발주' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            onClick={handlePageSave}
+            className={`hidden md:flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
           >
-            자재 발주 리스트
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '일정 변동사항 저장됨' : '전체 변동 저장'}
           </button>
         </div>
       </header>

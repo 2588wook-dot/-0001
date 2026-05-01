@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Site, WorkLog, PersonnelLog, EquipmentLog, MaterialLog, Photo, AdminFinance, WeeklySchedule, Appointment, OrderItem, ProjectMemo } from '../types';
+import { Site, WorkLog, PersonnelLog, EquipmentLog, MaterialLog, Photo, AdminFinance, WeeklySchedule, Appointment, OrderItem, ProjectMemo, ProductivityLog, Blueprint } from '../types';
 import { 
-  ClipboardList, 
+  Building2, 
   Users, 
   Truck, 
   Package, 
@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   ArrowUpRight,
   TrendingDown,
-  Building2,
+  Building2 as HomeIcon,
   DollarSign,
   Calendar,
   MapPin,
@@ -22,10 +22,14 @@ import {
   Camera,
   Plus,
   Save,
-  FileText as FileTextIcon
+  Activity,
+  Calculator,
+  FileText as FileTextIcon,
+  CheckCircle2
 } from 'lucide-react';
 import { useState, useRef, ChangeEvent } from 'react';
-import WorkLogForm from './WorkLogForm';
+import PhotoGalleryView from './PhotoGalleryView';
+import ProductivityCalculator from './ProductivityCalculator';
 import PersonnelForm from './PersonnelForm';
 import EquipmentForm from './EquipmentForm';
 import MaterialForm from './MaterialForm';
@@ -50,6 +54,8 @@ interface Props {
     memos: ProjectMemo[];
     appointments: Appointment[];
     orders: OrderItem[];
+    productivity: ProductivityLog[];
+    blueprints: Blueprint[];
   };
   onUpdateWorkLog: (log: WorkLog) => void;
   onUpdatePersonnel: (log: PersonnelLog) => void;
@@ -57,6 +63,10 @@ interface Props {
   onUpdateMaterial: (log: MaterialLog) => void;
   onUpdateFinance: (fin: AdminFinance) => void;
   onUpdatePhotos: (photo: Photo) => void;
+  onUpdatePhotoDetails: (photo: Photo) => void;
+  onDeletePhoto: (id: string) => void;
+  onUpdateProductivity: (log: ProductivityLog) => void;
+  onDeleteProductivity: (id: string) => void;
   onDeletePersonnel: (id: string) => void;
   onDeleteEquipment: (id: string) => void;
   onDeleteMaterial: (id: string) => void;
@@ -68,6 +78,8 @@ interface Props {
   onDeleteAppointment: (id: string) => void;
   onUpdateOrder: (order: OrderItem) => void;
   onDeleteOrder: (id: string) => void;
+  onUpdateBlueprints: (blueprint: Blueprint) => void;
+  onDeleteBlueprint: (id: string) => void;
   isAdminMode: boolean;
 }
 
@@ -93,6 +105,12 @@ export default function Dashboard({
   onDeleteOrder,
   onUpdateFinance,
   onUpdatePhotos,
+  onUpdatePhotoDetails,
+  onDeletePhoto,
+  onUpdateProductivity,
+  onDeleteProductivity,
+  onUpdateBlueprints,
+  onDeleteBlueprint,
   isAdminMode 
 }: Props) {
   const today = new Date().toISOString().split('T')[0];
@@ -135,8 +153,16 @@ export default function Dashboard({
   };
 
   const stats = getStats();
+  
+  const displayStats = {
+    manpower: latestLog?.manpowerTotal || logs.personnel.filter(l => l.date === today).reduce((acc, curr) => acc + curr.count, 0),
+    equipment: latestLog?.equipmentTotal || logs.equipment.filter(l => l.date === today).reduce((acc, curr) => acc + curr.count, 0),
+    progress: logs.productivity.length > 0 
+      ? ((logs.productivity.reduce((acc, curr) => acc + curr.actualWork, 0) / logs.productivity.reduce((acc, curr) => acc + curr.plannedWork, 0)) * 100).toFixed(1)
+      : stats.progress,
+    dDay: (latestLog?.remainingDays && latestLog.remainingDays > 0) ? latestLog.remainingDays : stats.dDay
+  };
 
-  // Dynamic Safety Rules based on trades
   const getDynamicSafetyRules = () => {
     const todayPersonnel = logs.personnel.filter(l => l.date === new Date().toISOString().split('T')[0]);
     const trades = todayPersonnel.map(p => p.trade);
@@ -151,27 +177,33 @@ export default function Dashboard({
     ];
 
     const matched = rules.filter(r => trades.some(t => t.includes(r.key)));
-    
-    // Default fallback rules
     const defaultRules = [
       '현장 내 전구역 금연 (위반 시 즉시 퇴출)',
       '화기 작업 전 사전 승인 및 감시원 배치'
     ];
-
     return matched.length > 0 ? matched.map(m => m.rule) : defaultRules;
   };
 
-  const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (source: 'camera' | 'album') => {
+    if (source === 'camera') photoInputRef.current?.setAttribute('capture', 'environment');
+    else photoInputRef.current?.removeAttribute('capture');
+    photoInputRef.current?.click();
+  };
+
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const newPhoto: Photo = {
-        id: Math.random().toString(36).substr(2, 9),
-        siteId: site.id,
-        date: new Date().toISOString().split('T')[0],
-        url: URL.createObjectURL(file),
-        description: '현장 모바일 업로드'
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdatePhotos({
+          id: `photo-${Date.now()}`,
+          siteId: site.id,
+          date: today,
+          url: reader.result as string,
+          description: '현장 퀵 업로드'
+        });
       };
-      onUpdatePhotos(newPhoto);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -193,42 +225,66 @@ export default function Dashboard({
     }, 500);
   };
 
+  const handleSaveAndClose = () => {
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      setActiveTab('대시보드');
+    }, 500);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case '대시보드':
         return (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand-blue text-white p-2.5 rounded-xl shadow-lg shadow-brand-blue/20">
+                    <TrendingUp size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black tracking-tight text-gray-900 uppercase">현장 종합 요약</h2>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{site.name} STATUS</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               <StatCard 
                 label="금일 인원" 
-                value={logs.personnel.filter(l => l.date === today).reduce((acc, curr) => acc + curr.count, 0)} 
+                value={displayStats.manpower} 
                 unit="명" 
                 icon={Users} 
+                onClick={() => setActiveTab('인원 투입')}
                 trend={`${logs.personnel.filter(l => l.date === today).length}개 업체`}
                 trendPositive
               />
               <StatCard 
                 label="금일 장비" 
-                value={logs.equipment.filter(l => l.date === today).reduce((acc, curr) => acc + curr.count, 0)} 
+                value={displayStats.equipment} 
                 unit="대" 
                 icon={Truck} 
+                onClick={() => setActiveTab('장비 투입')}
                 trend={`${logs.equipment.filter(l => l.date === today).length}종 투입`}
               />
               <StatCard 
-                label="공정 진행" 
-                value={stats.progress} 
+                label="공정 실적" 
+                value={displayStats.progress} 
                 unit="%" 
                 icon={TrendingUp} 
-                progress={Number(stats.progress)}
+                onClick={() => setActiveTab('공율 및 실적 관리')}
+                progress={Number(displayStats.progress)}
               />
               <StatCard 
                 label="잔여 공기" 
-                value={stats.dDay} 
+                value={displayStats.dDay} 
                 unit="일" 
                 prefix="D-"
                 icon={Calendar} 
+                onClick={() => setActiveTab('일반 공정표')}
                 trend={stats.endDate}
-                trendWarning={stats.dDay < 30}
+                trendWarning={Number(displayStats.dDay) < 30}
               />
             </div>
 
@@ -237,8 +293,7 @@ export default function Dashboard({
                 <div className="card h-full flex flex-col p-4 md:p-6 bg-white shadow-sm border-none">
                   <div className="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
                     <h3 className="text-base font-black flex items-center gap-2">
-                      <ClipboardList size={18} className="text-brand-blue" />
-                      금일 주요 작업
+                       금일 주요 작업
                     </h3>
                     <button 
                       onClick={saveWorkPlan}
@@ -303,19 +358,26 @@ export default function Dashboard({
                 <div className="card bg-gray-50/50 p-4 md:p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-base font-bold">최근 현장 사진</h3>
-                    <button 
-                      onClick={() => photoInputRef.current?.click()}
-                      className="p-2 bg-brand-blue text-white rounded-lg hover:shadow-lg transition-all active:scale-95"
-                    >
-                      <Camera size={18} />
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handlePhotoUpload('camera')}
+                        className="p-2 bg-brand-blue text-white rounded-lg hover:shadow-lg transition-all active:scale-95"
+                      >
+                        <Camera size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handlePhotoUpload('album')}
+                        className="p-2 bg-brand-blue text-white rounded-lg hover:shadow-lg transition-all active:scale-95"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
                     <input 
                       type="file" 
                       ref={photoInputRef} 
                       className="hidden" 
                       accept="image/*" 
-                      capture="environment" 
-                      onChange={handlePhotoUpload} 
+                      onChange={onFileChange} 
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2 mb-6">
@@ -330,7 +392,7 @@ export default function Dashboard({
                     {logs.photos.length < 4 && Array.from({ length: 4 - logs.photos.length }).map((_, i) => (
                       <div 
                         key={`empty-${i}`} 
-                        onClick={() => photoInputRef.current?.click()}
+                        onClick={() => handlePhotoUpload('camera')}
                         className="aspect-square bg-gray-100 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-300 gap-1 cursor-pointer hover:bg-gray-200 transition-all"
                       >
                         <Plus size={20} />
@@ -373,16 +435,33 @@ export default function Dashboard({
             </div>
           </div>
         );
-      case '공사일보 작성':
-        return <WorkLogForm logs={logs.work} onSave={(log) => onUpdateWorkLog({...log, siteId: site.id})} />;
+      case '공율 및 실적 관리':
+        return (
+          <ProductivityCalculator 
+            logs={logs.productivity} 
+            onSave={onUpdateProductivity} 
+            onDelete={onDeleteProductivity} 
+            onSaveAndClose={handleSaveAndClose}
+          />
+        );
+      case '현장 사진 갤러리':
+        return (
+          <PhotoGalleryView 
+            photos={logs.photos} 
+            onAddPhoto={onUpdatePhotos} 
+            onUpdatePhoto={onUpdatePhotoDetails} 
+            onDeletePhoto={onDeletePhoto} 
+            onSaveAndClose={handleSaveAndClose}
+          />
+        );
       case '인원 투입':
-        return <PersonnelForm logs={logs.personnel} partners={site.partners} onSave={(log) => onUpdatePersonnel({...log, siteId: site.id})} onDelete={onDeletePersonnel} />;
+        return <PersonnelForm logs={logs.personnel} partners={site.partners} onSave={(log) => onUpdatePersonnel({...log, siteId: site.id})} onDelete={onDeletePersonnel} onSaveAndClose={handleSaveAndClose} />;
       case '장비 투입':
-        return <EquipmentForm logs={logs.equipment} onSave={(log) => onUpdateEquipment({...log, siteId: site.id})} onDelete={onDeleteEquipment} />;
+        return <EquipmentForm logs={logs.equipment} onSave={(log) => onUpdateEquipment({...log, siteId: site.id})} onDelete={onDeleteEquipment} onSaveAndClose={handleSaveAndClose} />;
       case '자재 반입·반출':
-        return <MaterialForm logs={logs.material} onSave={(log) => onUpdateMaterial({...log, siteId: site.id})} onDelete={onDeleteMaterial} />;
+        return <MaterialForm logs={logs.material} onSave={(log) => onUpdateMaterial({...log, siteId: site.id})} onDelete={onDeleteMaterial} onSaveAndClose={handleSaveAndClose} />;
       case '보고서 출력':
-        return <ReportView site={site} logs={logs} />;
+        return <ReportView site={site} logs={logs} onSaveAndClose={handleSaveAndClose} />;
       case '일반 공정표':
         return (
           <ProjectScheduleView 
@@ -392,10 +471,11 @@ export default function Dashboard({
             onDeleteWeekly={onDeleteWeeklySchedule}
             onSaveMemo={onUpdateMemo}
             onDeleteMemo={onDeleteMemo}
+            onSaveAndClose={handleSaveAndClose}
           />
         );
       case '현장 도면 [PDF]':
-        return <BlueprintsView siteId={site.id} />;
+        return <BlueprintsView blueprints={logs.blueprints} onUpdate={onUpdateBlueprints} onDelete={onDeleteBlueprint} onSaveAndClose={handleSaveAndClose} />;
       case '스케줄 관리':
         return (
           <ScheduleManagement 
@@ -405,10 +485,11 @@ export default function Dashboard({
             onUpdateOrders={onUpdateOrder}
             onDeleteAppointment={onDeleteAppointment}
             onDeleteOrder={onDeleteOrder}
+            onSaveAndClose={handleSaveAndClose}
           />
         );
       case '업체 결재액 관리':
-        return <AdminFinanceView site={site} finance={logs.finance} onUpdate={onUpdateFinance} />;
+        return <AdminFinanceView site={site} finance={logs.finance} onUpdate={onUpdateFinance} onSaveAndClose={handleSaveAndClose} />;
       default:
         return <PlaceholderView title={activeTab} />;
     }
@@ -427,9 +508,12 @@ function PlaceholderView({ title }: { title: string }) {
   );
 }
 
-function StatCard({ label, value, unit, icon: Icon, trend, trendPositive, trendWarning, progress, prefix }: any) {
+function StatCard({ label, value, unit, icon: Icon, trend, trendPositive, trendWarning, progress, prefix, onClick }: any) {
   return (
-    <div className="card p-4 md:p-5 flex flex-col justify-between h-[120px] md:h-32 hover:shadow-lg transition-all cursor-pointer group bg-white border-none shadow-sm relative overflow-hidden">
+    <div 
+      onClick={onClick}
+      className="card p-4 md:p-5 flex flex-col justify-between h-[120px] md:h-32 hover:shadow-lg transition-all cursor-pointer group bg-white border-none shadow-sm relative overflow-hidden"
+    >
       <div className="flex justify-between items-start">
         <span className="text-[10px] md:text-[12px] font-black uppercase text-gray-400 tracking-wider">{label}</span>
         <div className={`p-1.5 rounded-lg transition-colors ${trendPositive ? 'bg-green-50 text-green-600' : trendWarning ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-brand-blue'}`}>
@@ -456,7 +540,6 @@ function StatCard({ label, value, unit, icon: Icon, trend, trendPositive, trendW
     </div>
   );
 }
-
 
 function ShieldAlert({ size }: { size: number }) {
   return (

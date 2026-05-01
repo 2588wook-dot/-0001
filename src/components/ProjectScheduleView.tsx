@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { WeeklySchedule, ProjectMemo } from '../types';
-import { Calendar as CalendarIcon, Plus, Trash2, Save, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Trash2, Save, ChevronLeft, ChevronRight, LayoutGrid, List, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
   onDeleteWeekly: (id: string) => void;
   onSaveMemo: (memo: ProjectMemo) => void;
   onDeleteMemo: (id: string) => void;
+  onSaveAndClose?: () => void;
 }
 
 export default function ProjectScheduleView({ 
@@ -23,10 +24,20 @@ export default function ProjectScheduleView({
   onSaveWeekly, 
   onDeleteWeekly, 
   onSaveMemo, 
-  onDeleteMemo 
+  onDeleteMemo,
+  onSaveAndClose
 }: Props) {
   const [viewMode, setViewMode] = useState<'WEEKLY' | 'MONTHLY' | 'CALENDAR'>('WEEKLY');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showSaved, setShowSaved] = useState(false);
+
+  const handlePageSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
   
   // Weekly Form State
   const [formData, setFormData] = useState<Partial<WeeklySchedule>>({
@@ -120,29 +131,47 @@ export default function ProjectScheduleView({
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500 pb-20 md:pb-10">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-black tracking-tight text-gray-900 uppercase">일반 공정표 & 통합 스케줄</h2>
-          <p className="text-xs text-gray-500 mt-1">월간/주간 공정 계획과 현장 메모를 통합 관리합니다.</p>
+        <div className="flex justify-between w-full md:w-auto items-center">
+          <div>
+            <h2 className="text-xl font-black tracking-tight text-gray-900 uppercase">일반 공정표 & 통합 스케줄</h2>
+            <p className="text-xs text-gray-500 mt-1">월간/주간 공정 계획과 현장 메모를 통합 관리합니다.</p>
+          </div>
+          <button 
+            onClick={handlePageSave}
+            className={`md:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20'}`}
+          >
+            {showSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+            {showSaved ? '저장됨' : '저장'}
+          </button>
         </div>
         
-        <div className="flex bg-gray-100 p-1 rounded-xl w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="flex bg-gray-100 p-1 rounded-xl w-full md:w-auto">
+            <button 
+              onClick={() => setViewMode('MONTHLY')}
+              className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'MONTHLY' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+            >
+              <LayoutGrid size={14} /> 월간
+            </button>
+            <button 
+              onClick={() => setViewMode('WEEKLY')}
+              className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'WEEKLY' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+            >
+              <List size={14} /> 주간
+            </button>
+            <button 
+              onClick={() => setViewMode('CALENDAR')}
+              className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'CALENDAR' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+            >
+              <CalendarIcon size={14} /> 메모
+            </button>
+          </div>
           <button 
-            onClick={() => setViewMode('MONTHLY')}
-            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'MONTHLY' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+            onClick={handlePageSave}
+            className={`hidden md:flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
           >
-            <LayoutGrid size={14} /> 월간
-          </button>
-          <button 
-            onClick={() => setViewMode('WEEKLY')}
-            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'WEEKLY' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
-          >
-            <List size={14} /> 주간
-          </button>
-          <button 
-            onClick={() => setViewMode('CALENDAR')}
-            className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 ${viewMode === 'CALENDAR' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
-          >
-            <CalendarIcon size={14} /> 메모
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '전체 공정 현황 저장됨' : '현재 작업 내용 저장'}
           </button>
         </div>
       </header>

@@ -73,8 +73,8 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
 
   const menuItems = [
     { icon: Building2, label: '대시보드', admin: false },
-    { icon: ClipboardList, label: '공사일보 작성', admin: false },
-    { icon: Image, label: '사진대지 관리', admin: false },
+    { icon: Calculator, label: '공율 및 실적 관리', admin: false },
+    { icon: Image, label: '현장 사진 갤러리', admin: false },
     { icon: Users, label: '인원 투입', admin: false },
     { icon: Truck, label: '장비 투입', admin: false },
     { icon: Package, label: '자재 반입·반출', admin: false },
@@ -94,9 +94,8 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
 
   const mobileNavItems = [
     { icon: Building2, label: '대시보드' },
-    { icon: ClipboardList, label: '일보작성' },
-    { icon: FileText, label: '도면관리' },
-    { icon: Save, label: '저장', isAction: true },
+    { icon: Calculator, label: '실적관리' },
+    { icon: Image, label: '사진대지' },
     { icon: LogOut, label: '나가기', isAction: true, danger: true },
     { icon: ShieldAlert, label: '관리자', special: true },
   ];
@@ -243,17 +242,10 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
             </div>
           </div>
           <div className="flex items-center gap-3 md:gap-6">
-            <div className="text-right hidden sm:block">
+            <div className="text-right">
               <p className="text-[11px] text-gray-400 font-medium">{new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</p>
               <p className="text-xs font-bold">맑음 (18.5°C)</p>
             </div>
-            <button 
-              className="btn-primary py-2.5 px-4 text-xs font-black shadow-lg shadow-brand-blue/30 active:scale-95 transition-transform" 
-              onClick={() => setActiveTab('공사일보 작성')}
-            >
-              <span className="md:hidden">+ 작성</span>
-              <span className="hidden md:inline">+ 공사일보 작성</span>
-            </button>
           </div>
         </header>
 
@@ -266,7 +258,7 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
 
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-gray-100 flex items-center justify-around px-1 z-40 md:hidden pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         {mobileNavItems.map((item, idx) => {
-          const isActive = !item.isAction && (activeTab === item.label || (item.label === '일보작성' && activeTab === '공사일보 작성') || (item.label === '도면관리' && activeTab === '현장 도면 [PDF]') || (item.special && isAdminMode));
+          const isActive = !item.isAction && (activeTab === item.label || (item.label === '실적관리' && activeTab === '공율 및 실적 관리') || (item.label === '사진대지' && activeTab === '현장 사진 갤러리') || (item.special && isAdminMode));
           
           return (
             <button 
@@ -278,7 +270,7 @@ export default function MainLayout({ site, children, onLogout, isAdminMode, setI
                   if (isAdminMode) setActiveTab('업체 결재액 관리');
                   else handleAdminToggle();
                 } else {
-                  const targetLabel = item.label === '일보작성' ? '공사일보 작성' : (item.label === '도면관리' ? '현장 도면 [PDF]' : item.label);
+                  const targetLabel = item.label === '실적관리' ? '공율 및 실적 관리' : (item.label === '사진대지' ? '현장 사진 갤러리' : item.label);
                   setActiveTab(targetLabel);
                 }
               }}

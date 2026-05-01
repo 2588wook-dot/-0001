@@ -5,15 +5,17 @@
 
 import { useState } from 'react';
 import { Site, AdminFinance } from '../types';
-import { Building2, DollarSign, AlertTriangle, Save, TrendingUp, CreditCard, Users } from 'lucide-react';
+import { Building2, DollarSign, AlertTriangle, Save, TrendingUp, CreditCard, Users, CheckCircle2 } from 'lucide-react';
 
 interface Props {
   site: Site;
   finance?: AdminFinance;
   onUpdate: (fin: AdminFinance) => void;
+  onSaveAndClose?: () => void;
 }
 
-export default function AdminFinanceView({ site, finance, onUpdate }: Props) {
+export default function AdminFinanceView({ site, finance, onUpdate, onSaveAndClose }: Props) {
+  const [showSaved, setShowSaved] = useState(false);
   // If no finance data exists, initialize with site partners
   const initialPartnerPayments = site.partners.reduce((acc, p) => {
     acc[p] = finance?.partnerPayments[p] || {
@@ -53,7 +55,11 @@ export default function AdminFinanceView({ site, finance, onUpdate }: Props) {
 
   const handleSave = () => {
     onUpdate(localFinance);
-    alert('재무 정보가 저장되었습니다.');
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
   };
 
   const totalContract = Object.values(localFinance.partnerPayments).reduce((acc: number, p: any) => acc + (Number(p.contractAmount) || 0), 0);
@@ -66,13 +72,17 @@ export default function AdminFinanceView({ site, finance, onUpdate }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 animate-in slide-in-from-right-4 duration-500 pb-20 md:pb-10">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-2 gap-4">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight">업체 결재액 및 재무 관리</h2>
           <p className="text-xs text-gray-500 mt-1">계약금액 대비 기성 집행 현황을 상세하게 관리합니다.</p>
         </div>
-        <button onClick={handleSave} className="btn-primary w-full md:w-auto flex items-center justify-center gap-2 py-4 md:py-2">
-          <Save size={18} className="md:size-4" /> 설정 저장하기
+        <button 
+          onClick={handleSave} 
+          className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
+        >
+          {showSaved ? <CheckCircle2 size={18} /> : <Save size={18} />}
+          {showSaved ? '재무 정보 저장됨' : '설정 저장하기'}
         </button>
       </header>
       

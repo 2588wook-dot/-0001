@@ -5,19 +5,29 @@
 
 import { useState } from 'react';
 import { EquipmentLog } from '../types';
-import { Truck, Plus, Trash2 } from 'lucide-react';
+import { Truck, Plus, Trash2, Save, CheckCircle2 } from 'lucide-react';
 
 interface Props {
   logs: EquipmentLog[];
   onSave: (log: EquipmentLog) => void;
   onDelete: (id: string) => void;
+  onSaveAndClose?: () => void;
 }
 
-export default function EquipmentForm({ logs, onSave, onDelete }: Props) {
+export default function EquipmentForm({ logs, onSave, onDelete, onSaveAndClose }: Props) {
   const today = new Date().toISOString().split('T')[0];
   const [name, setName] = useState('');
   const [spec, setSpec] = useState('');
   const [count, setCount] = useState(1);
+  const [showSaved, setShowSaved] = useState(false);
+
+  const handlePageSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
 
   const handleAdd = () => {
     if (!name ) return;
@@ -38,13 +48,31 @@ export default function EquipmentForm({ logs, onSave, onDelete }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-      <header className="flex justify-between items-end mb-2">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">장비 투입 관리</h2>
-          <p className="text-xs text-gray-500 mt-1">현장에 투입된 중장비 및 차량 현황을 기록합니다.</p>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-4">
+        <div className="flex justify-between w-full md:w-auto items-center">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">장비 투입 관리</h2>
+            <p className="text-xs text-gray-500 mt-1">현장에 투입된 중장비 및 차량 현황을 기록합니다.</p>
+          </div>
+          <button 
+            onClick={handlePageSave}
+            className={`md:hidden flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'}`}
+          >
+            {showSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+            {showSaved ? '저장됨' : '저장'}
+          </button>
         </div>
-        <div className="text-right text-[11px] text-gray-400 font-medium font-sans">
-          기준일: {today} | 금일 총 {todayLogs.reduce((acc, curr) => acc + curr.count, 0)}대 가동
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="text-right text-[11px] text-gray-400 font-medium font-sans">
+            기준일: {today} | 금일 총 {todayLogs.reduce((acc, curr) => acc + curr.count, 0)}대 가동
+          </div>
+          <button 
+            onClick={handlePageSave}
+            className={`hidden md:flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
+          >
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '현재 상태 저장' : '데이터 저장'}
+          </button>
         </div>
       </header>
 

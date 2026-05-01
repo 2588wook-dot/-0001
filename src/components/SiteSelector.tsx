@@ -165,113 +165,113 @@ export default function SiteSelector({ sites, onSelect, onAddSite, onDeleteSite,
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start md:items-center justify-center p-3 md:p-4 z-50 overflow-y-auto"
             >
-              <div className="bg-[#E4E3E0] border-4 border-[#141414] w-full max-w-2xl p-8 shadow-[16px_16px_0px_#141414]">
-                <div className="flex justify-between items-center mb-8 border-b-2 border-[#141414] pb-4">
-                  <h3 className="text-2xl font-black italic serif uppercase tracking-tight">현장 등록 [SITE REGISTRATION]</h3>
+              <div className="bg-[#E4E3E0] border-4 border-[#141414] w-full max-w-2xl p-5 md:p-8 shadow-[8px_8px_0px_#141414] md:shadow-[16px_16px_0px_#141414] my-2 md:my-0">
+                <div className="flex justify-between items-center mb-6 md:mb-8 border-b-2 border-[#141414] pb-4">
+                  <h3 className="text-lg md:text-2xl font-black italic serif uppercase tracking-tight">현장 등록 [SITE REGISTRATION]</h3>
                   <button onClick={() => setIsAdding(false)} className="hover:rotate-90 transition-transform p-1">
-                    <Plus className="rotate-45" size={32} />
+                    <Plus className="rotate-45 text-[#141414]" size={28} />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                  <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
+                  <div className="space-y-5 md:space-y-6">
                     <div className="group">
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장명 [Site Name]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장명 [Site Name]</label>
                       <input 
                         type="text" 
                         placeholder="예: 강남 테헤란로 빌딩"
                         value={newSite.name || ''}
                         onChange={e => setNewSite({...newSite, name: e.target.value})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-2 focus:outline-none focus:border-brand-blue font-bold text-lg" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1.5 focus:outline-none focus:border-brand-blue font-bold text-base md:text-lg" 
                       />
                     </div>
                     <div className="group">
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">발주처 [Client]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">발주처 [Client]</label>
                       <input 
                         type="text"
                         placeholder="주식회사 에이비씨"
                         value={newSite.client || ''}
                         onChange={e => setNewSite({...newSite, client: e.target.value})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium text-sm md:text-base" 
                       />
                     </div>
                     <div className="group">
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장주소 [Address]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장주소 [Address]</label>
                       <input 
                         type="text"
                         placeholder="서울특별시 강남구..."
                         value={newSite.address || ''}
                         onChange={e => setNewSite({...newSite, address: e.target.value})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium text-sm md:text-base" 
                       />
                     </div>
                     <div className="group">
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장 제목/제목 [Notes]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장 제목/제목 [Notes]</label>
                       <input 
                         type="text"
                         placeholder="지하 2층 지상 10층 근생시설 공사"
                         value={newSite.notes || ''}
                         onChange={e => setNewSite({...newSite, notes: e.target.value})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-medium text-sm md:text-base" 
                       />
                     </div>
                   </div>
-                  <div className="space-y-6">
+                  <div className="space-y-5 md:space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-black text-[10px] uppercase text-gray-400 tracking-widest mb-1">착공일</label>
+                        <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 tracking-widest mb-1">착공일</label>
                         <input 
                           type="date"
                           value={newSite.startDate || ''}
                           onChange={e => setNewSite({...newSite, startDate: e.target.value})}
-                          className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none font-mono text-sm" 
+                          className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none font-mono text-xs md:text-sm appearance-none" 
                         />
                       </div>
                       <div>
-                        <label className="block font-black text-[10px] uppercase text-gray-400 tracking-widest mb-1">준공예정일</label>
+                        <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 tracking-widest mb-1">준공예정일</label>
                         <input 
                           type="date"
                           value={newSite.endDate || ''}
                           onChange={e => setNewSite({...newSite, endDate: e.target.value})}
-                          className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none font-mono text-sm" 
+                          className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none font-mono text-xs md:text-sm appearance-none" 
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">계약금액 [Contract Amount]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">계약금액 [Contract Amount]</label>
                       <input 
                         type="number"
                         placeholder="0"
                         value={newSite.contractAmount || ''}
                         onChange={e => setNewSite({...newSite, contractAmount: Number(e.target.value)})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-bold font-mono" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-bold font-mono text-sm md:text-base" 
                       />
                     </div>
                     <div>
-                      <label className="block font-black text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장소장 [Manager]</label>
+                      <label className="block font-black text-[9px] md:text-[10px] uppercase text-gray-400 group-focus-within:text-brand-blue tracking-widest mb-1">현장소장 [Manager]</label>
                       <input 
                         type="text"
                         placeholder="이름 입력"
                         value={newSite.manager || ''}
                         onChange={e => setNewSite({...newSite, manager: e.target.value})}
-                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-bold" 
+                        className="w-full bg-transparent border-b-2 border-[#141414] px-1 py-1 focus:outline-none focus:border-brand-blue font-bold text-sm md:text-base" 
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-end gap-4">
+                <div className="flex flex-col md:flex-row justify-end gap-3 md:gap-4">
                   <button 
                     onClick={() => setIsAdding(false)}
-                    className="w-full md:w-auto px-10 py-4 md:py-2 bg-transparent border-2 border-[#141414] text-[#141414] font-black text-sm uppercase hover:bg-[#141414] hover:text-[#E4E3E0] transition-all"
+                    className="w-full md:w-auto px-10 py-3.5 md:py-2 bg-transparent border-2 border-[#141414] text-[#141414] font-black text-xs md:text-sm uppercase hover:bg-[#141414] hover:text-[#E4E3E0] transition-all"
                   >
                     취소 [CANCEL]
                   </button>
                   <button 
                     onClick={handleAdd}
-                    className="w-full md:w-auto px-10 py-4 md:py-2 bg-[#141414] text-[#E4E3E0] font-black text-sm uppercase hover:shadow-[4px_4px_0px_#8b8a87] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                    className="w-full md:w-auto px-10 py-3.5 md:py-2 bg-[#141414] text-[#E4E3E0] font-black text-xs md:text-sm uppercase hover:shadow-[4px_4px_0px_#8b8a87] active:translate-x-0.5 active:translate-y-0.5 transition-all"
                   >
                     등록 [SUBMIT]
                   </button>

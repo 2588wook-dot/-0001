@@ -5,23 +5,28 @@
 
 import { useState } from 'react';
 import { Blueprint } from '../types';
-import { FileText, Plus, Search, Filter, Trash2, Download, Eye } from 'lucide-react';
+import { FileText, Plus, Search, Filter, Trash2, Download, Eye, Save, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
-  siteId: string;
+  blueprints: Blueprint[];
+  onUpdate: (blueprint: Blueprint) => void;
+  onDelete: (id: string) => void;
+  onSaveAndClose?: () => void;
 }
 
-export default function BlueprintsView({ siteId }: Props) {
-  const [blueprints, setBlueprints] = useState<Blueprint[]>([
-    { id: '1', siteId, name: '1층 평면도_final', url: '#', uploadDate: '2024-04-20', category: '평면도' },
-    { id: '2', siteId, name: 'B1층 평면도_v2', url: '#', uploadDate: '2024-04-18', category: '평면도' },
-    { id: '3', siteId, name: '전기설비 계통도', url: '#', uploadDate: '2024-04-15', category: '설비도' },
-    { id: '4', siteId, name: '구조 상세도_기초', url: '#', uploadDate: '2024-04-10', category: '구조도' },
-  ]);
-
+export default function BlueprintsView({ blueprints, onUpdate, onDelete, onSaveAndClose }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [showSaved, setShowSaved] = useState(false);
+
+  const handlePageSave = () => {
+    setShowSaved(true);
+    setTimeout(() => {
+      setShowSaved(false);
+      onSaveAndClose?.();
+    }, 1000);
+  };
 
   const categories = ['전체', '평면도', '구조도', '설비도', '인테리어', '기타'];
 
@@ -32,7 +37,7 @@ export default function BlueprintsView({ siteId }: Props) {
 
   const handleDelete = (id: string) => {
     if (confirm('도면을 삭제하시겠습니까?')) {
-      setBlueprints(prev => prev.filter(b => b.id !== id));
+      onDelete(id);
     }
   };
 
@@ -46,13 +51,13 @@ export default function BlueprintsView({ siteId }: Props) {
       if (file) {
         const newBlueprint: Blueprint = {
           id: Math.random().toString(36).substr(2, 9),
-          siteId,
+          siteId: '', // Will be set in App.tsx
           name: file.name.split('.')[0],
           url: URL.createObjectURL(file),
           uploadDate: new Date().toISOString().split('T')[0],
           category: '기타'
         };
-        setBlueprints([newBlueprint, ...blueprints]);
+        onUpdate(newBlueprint);
       }
     };
     input.click();
@@ -61,16 +66,34 @@ export default function BlueprintsView({ siteId }: Props) {
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-in slide-in-from-right-4 duration-500 pb-20 md:pb-10">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
-          <h2 className="text-xl font-black tracking-tight text-gray-900 uppercase">현장 도면 및 PDF 관리</h2>
-          <p className="text-xs text-gray-500 mt-1">현장의 최신 도면을 관리하고 어디서나 열람할 수 있습니다.</p>
+        <div className="flex justify-between w-full md:w-auto items-center">
+          <div>
+            <h2 className="text-xl font-black tracking-tight text-gray-900 uppercase">현장 도면 및 PDF 관리</h2>
+            <p className="text-xs text-gray-500 mt-1">현장의 최신 도면을 관리하고 어디서나 열람할 수 있습니다.</p>
+          </div>
+          <button 
+            onClick={handlePageSave}
+            className={`md:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20'}`}
+          >
+            {showSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+            {showSaved ? '저장됨' : '저장'}
+          </button>
         </div>
-        <button 
-          onClick={handleUpload}
-          className="btn-primary w-full md:w-auto px-6 py-4 md:py-2.5 flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
-        >
-          <Plus size={18} /> 새 도면 업로드
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={handleUpload}
+            className="btn-primary flex-1 md:flex-none px-6 py-4 md:py-2.5 flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
+          >
+            <Plus size={18} /> 도면 업로드
+          </button>
+          <button 
+            onClick={handlePageSave}
+            className={`hidden md:flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${showSaved ? 'bg-green-500 text-white' : 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95'}`}
+          >
+            {showSaved ? <CheckCircle2 size={16} /> : <Save size={16} />}
+            {showSaved ? '도면 목록 저장됨' : '목록 저장'}
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100">

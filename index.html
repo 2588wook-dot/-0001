@@ -9,9 +9,14 @@
     <title>ArchiLog - 현장관리 시스템</title>
   </head>
   <body class="antialiased">
-    <div id="root"></div>
+    <div id="root">
+      <div id="loader" style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; background: white;">
+        <h1 style="color: #111827; font-size: 2rem; font-weight: 800; letter-spacing: -0.05em; margin: 0;">ArchiLog</h1>
+        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">시스템을 불러오는 중입니다...</p>
+      </div>
+    </div>
     <script>console.log("ArchiLog: HTML root ready.");</script>
-    <script type="module" src="src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 

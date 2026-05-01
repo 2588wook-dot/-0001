@@ -24,7 +24,7 @@ import {
   FileText,
   Save
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   site: Site;

@@ -105,21 +105,33 @@ export default function Dashboard({
 
   // Calculate dynamic stats
   const getStats = () => {
-    const now = new Date();
-    const start = new Date(site.startDate);
-    const end = new Date(site.endDate);
-    
-    const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 1;
-    const elapsedDays = Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    const dDay = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
-    const progress = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
-    
-    return {
-      progress: progress.toFixed(1),
-      dDay: dDay,
-      endDate: site.endDate
-    };
+    try {
+      const now = new Date();
+      if (!site.startDate || !site.endDate) {
+        return { progress: '0.0', dDay: 0, endDate: '-' };
+      }
+      const start = new Date(site.startDate);
+      const end = new Date(site.endDate);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return { progress: '0.0', dDay: 0, endDate: '-' };
+      }
+
+      const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+      const elapsedDays = Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const dDay = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      
+      const progress = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
+      
+      return {
+        progress: progress.toFixed(1),
+        dDay: dDay,
+        endDate: site.endDate
+      };
+    } catch (e) {
+      console.error("Stats calculation error:", e);
+      return { progress: '0.0', dDay: 0, endDate: '-' };
+    }
   };
 
   const stats = getStats();

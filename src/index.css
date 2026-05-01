@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-brand-blue: #2563eb;
+  --color-brand-orange: #f97316;
+  --color-bg-gray: #f3f4f6;
+  --color-sidebar-dark: #111827;
+  --color-border-gray: #e5e7eb;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-gray text-[#1f2937];
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg border border-border-gray p-4 shadow-sm;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-blue text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors cursor-pointer border-none;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors cursor-pointer;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-border-gray text-gray-600;
+  }
+}
